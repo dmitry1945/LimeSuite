@@ -107,7 +107,7 @@ int main(int argc, char** argv)
     cout << "TX LPF bandwitdh range: " << range.min / 1e6 << " - " << range.max / 1e6 << " MHz\n\n";
 
     //Configure LPF, bandwidth 8 MHz
-    if (LMS_SetLPFBW(device, LMS_CH_TX, 0, 4*5.25e6) != 0)
+    if (LMS_SetLPFBW(device, LMS_CH_TX, 0, 5.25e6) != 0)
         error();
 
     //Set center frequency
