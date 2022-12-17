@@ -10,6 +10,14 @@
 
 using namespace std;
 
+#include <fstream>
+
+std::ifstream::pos_type filesize(const char* filename)
+{
+    std::ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
+    return in.tellg();
+}
+
 //Device structure, should be initialize to NULL
 lms_device_t* device = NULL;
 
@@ -23,12 +31,19 @@ int error()
 int main(int argc, char** argv)
 {
     //double num_double = std::atof(str);
-
+    std::cout << "Frequency in Hz, filename, TX power 0..1 gain" << std::endl;
     const double frequency = std::atof(argv[1]);  //center frequency to 500 MHz
     const double sample_rate = 2 * 4194304;    //sample rate to 8.192 MHz
     const double tone_freq = 1e6; //tone frequency
     const double f_ratio = tone_freq/sample_rate;
-    std::cout << "frequency = " << frequency << ", filename = " << argv[2] << std::endl;
+
+    double tx_power = 0.7;
+    if (argc > 3)
+    {
+        tx_power = std::atof(argv[3]);
+    }
+    int64_t eee = filesize(argv[2]);
+    std::cout << "frequency = " << frequency << ", filename = " << argv[2] << ", TX power = " << tx_power << std::endl;
 
     float* cdma_data = NULL;
     int64_t in_cdma_data_size = 0;
@@ -40,12 +55,17 @@ int main(int argc, char** argv)
         fprintf(stderr, "File not exist: %s\n", argv[4]);
         return EXIT_FAILURE;
     }
-    cdma_data = (float*)malloc(65536 * 2 * 8 * sizeof(float));
+    int64_t total_count = eee/ sizeof(float);
+    cdma_data = (float*)malloc(total_count * sizeof(float));
     size_t read_count = 0;
     do {
         read_count = fread(&cdma_data[in_cdma_data_size], 1,
             65536 * 2 * sizeof(float), data_file);
         in_cdma_data_size += read_count / (sizeof(float));
+        if (in_cdma_data_size >= total_count)
+        {
+            break;
+        }
     } while (read_count > 0);
     fclose(data_file);
 
@@ -100,7 +120,7 @@ int main(int argc, char** argv)
         error();
 
     //set TX gain
-    if (LMS_SetNormalizedGain(device, LMS_CH_TX, 0, 0.7) != 0)
+    if (LMS_SetNormalizedGain(device, LMS_CH_TX, 0, tx_power) != 0)
         error();
 
     //calibrate Tx, continue on failure
@@ -134,7 +154,8 @@ int main(int argc, char** argv)
     //Streaming
     auto t1 = chrono::high_resolution_clock::now();
     auto t2 = t1;
-    while (chrono::high_resolution_clock::now() - t1 < chrono::seconds(1000)) //run for 10 seconds
+    while (true) //run for 10 seconds
+  //while (chrono::high_resolution_clock::now() - t1 < chrono::seconds(1000)) //run for 10 seconds
     {
         //Transmit samples
         int ret = LMS_SendStream(&tx_stream, cdma_data, in_cdma_data_size, nullptr, 1000);
