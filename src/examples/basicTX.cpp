@@ -154,7 +154,7 @@ int main(int argc, char** argv)
     //Streaming
     auto t1 = chrono::high_resolution_clock::now();
     auto t2 = t1;
-    int64_t send_data_size = 2*65536;
+    int64_t send_data_size = 8192;
     int64_t send_data_pos = 0;
     while (true) //run for 10 seconds
   //while (chrono::high_resolution_clock::now() - t1 < chrono::seconds(1000)) //run for 10 seconds
