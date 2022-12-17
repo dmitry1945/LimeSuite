@@ -154,15 +154,22 @@ int main(int argc, char** argv)
     //Streaming
     auto t1 = chrono::high_resolution_clock::now();
     auto t2 = t1;
+    int64_t send_data_size = 2*65536;
+    int64_t send_data_pos = 0;
     while (true) //run for 10 seconds
   //while (chrono::high_resolution_clock::now() - t1 < chrono::seconds(1000)) //run for 10 seconds
     {
         //Transmit samples
-        int ret = LMS_SendStream(&tx_stream, cdma_data, in_cdma_data_size, nullptr, 1000);
-        if (ret != in_cdma_data_size)
+        int ret = LMS_SendStream(&tx_stream, &cdma_data[send_data_pos], send_data_size, nullptr, 1000);
+        send_data_pos += send_data_size;
+        if (send_data_pos >= in_cdma_data_size)
         {
-            cout << "error: samples sent: " << ret << "/" << in_cdma_data_size << endl;
+            send_data_pos = 0;
         }
+        //if (ret != in_cdma_data_size)
+        //{
+        //    cout << "error: samples sent: " << ret << "/" << in_cdma_data_size << endl;
+        //}
         //Print data rate (once per second)
         if (chrono::high_resolution_clock::now() - t2 > chrono::seconds(1))
         {
