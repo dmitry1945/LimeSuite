@@ -7,7 +7,7 @@
 #include <chrono>
 #include <math.h>
 #include "lime/LimeSuite.h"
-#include <conio.h>
+
 
 using namespace std;
 
@@ -183,14 +183,14 @@ int main(int argc, char** argv)
             cout << "TX 0 FIFO: " << 100 * status.fifoFilledCount / status.fifoSize << "%" << endl; //percentage of TX 0 fifo filled
         }
 
-        if (_kbhit())
-        {
-            int c = getch();
-            if (c == 27)
-            {
-                end_up = true;
-            }
-        }
+        //if (_kbhit())
+        //{
+        //    int c = getch();
+        //    if (c == 27)
+        //    {
+        //        end_up = true;
+        //    }
+        //}
     }
     //Stop streaming
     LMS_StopStream(&tx_stream);
