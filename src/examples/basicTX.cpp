@@ -36,7 +36,7 @@ int main(int argc, char** argv)
     const double frequency = std::atof(argv[1]);  //center frequency to 500 MHz
     const double sample_rate = 2 * 4194304;    //sample rate to 8.192 MHz
     const double tone_freq = 1e6; //tone frequency
-    const double f_ratio = tone_freq/sample_rate;
+    const double f_ratio = 0.125;
 
     double tx_power = 0.7;
     if (argc > 3)
@@ -162,16 +162,17 @@ int main(int argc, char** argv)
   //while (chrono::high_resolution_clock::now() - t1 < chrono::seconds(1000)) //run for 10 seconds
     {
         //Transmit samples
-        int ret = LMS_SendStream(&tx_stream, &cdma_data[send_data_pos], send_data_size/2, nullptr, 1000);
+        //int ret = LMS_SendStream(&tx_stream, tx_buffer, send_cnt , nullptr, 1000);
+        int ret = LMS_SendStream(&tx_stream, &cdma_data[send_data_pos], send_data_size / 2, nullptr, 1000);
         send_data_pos += send_data_size;
         if (send_data_pos >= in_cdma_data_size)
         {
             send_data_pos = 0;
         }
-        if (ret != send_data_size/2)
-        {
-            cout << "error: samples sent: " << ret << "/" << send_data_size/2 << endl;
-        }
+        //if (ret != send_data_size/2)
+        //{
+        //    cout << "error: samples sent: " << ret << "/" << send_data_size/2 << endl;
+        //}
         //Print data rate (once per second)
         if (chrono::high_resolution_clock::now() - t2 > chrono::seconds(1))
         {
