@@ -7,6 +7,7 @@
 #include <chrono>
 #include <math.h>
 #include "lime/LimeSuite.h"
+#include <conio.h>
 
 using namespace std;
 
@@ -156,19 +157,20 @@ int main(int argc, char** argv)
     auto t2 = t1;
     int64_t send_data_size = 65536;
     int64_t send_data_pos = 0;
-    while (true) //run for 10 seconds
+    bool end_up = false;
+    while (!end_up) //run for 10 seconds
   //while (chrono::high_resolution_clock::now() - t1 < chrono::seconds(1000)) //run for 10 seconds
     {
         //Transmit samples
-        int ret = LMS_SendStream(&tx_stream, &cdma_data[send_data_pos], send_data_size, nullptr, 1000);
+        int ret = LMS_SendStream(&tx_stream, &cdma_data[send_data_pos], send_data_size/2, nullptr, 1000);
         send_data_pos += send_data_size;
         if (send_data_pos >= in_cdma_data_size)
         {
             send_data_pos = 0;
         }
-        if (ret != send_data_size)
+        if (ret != send_data_size/2)
         {
-            cout << "error: samples sent: " << ret << "/" << send_data_size << endl;
+            cout << "error: samples sent: " << ret << "/" << send_data_size/2 << endl;
         }
         //Print data rate (once per second)
         if (chrono::high_resolution_clock::now() - t2 > chrono::seconds(1))
@@ -177,6 +179,17 @@ int main(int argc, char** argv)
             lms_stream_status_t status;
             LMS_GetStreamStatus(&tx_stream, &status);  //Get stream status
             cout << "TX data rate: " << status.linkRate / 1e6 << " MB/s\n"; //link data rate
+            cout << "TX rate: " << status.linkRate / 1e6 << " MB/s\n"; //link data rate (both channels))
+            cout << "TX 0 FIFO: " << 100 * status.fifoFilledCount / status.fifoSize << "%" << endl; //percentage of TX 0 fifo filled
+        }
+
+        if (_kbhit())
+        {
+            int c = getch();
+            if (c == 27)
+            {
+                end_up = true;
+            }
         }
     }
     //Stop streaming
