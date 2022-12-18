@@ -158,16 +158,22 @@ int main(int argc, char** argv)
     int64_t send_data_size = 65536;
     int64_t send_data_pos = 0;
     bool end_up = false;
+    lms_stream_status_t status;
+
     while (!end_up) //run for 10 seconds
   //while (chrono::high_resolution_clock::now() - t1 < chrono::seconds(1000)) //run for 10 seconds
     {
         //Transmit samples
         //int ret = LMS_SendStream(&tx_stream, tx_buffer, send_cnt , nullptr, 1000);
-        int ret = LMS_SendStream(&tx_stream, &cdma_data[send_data_pos], send_data_size / 2, nullptr, 1000);
-        send_data_pos += send_data_size;
-        if (send_data_pos >= in_cdma_data_size)
+        LMS_GetStreamStatus(&tx_stream, &status);  //Get stream status
+        if (status.fifoFilledCount < (status.fifoSize - send_data_size))
         {
-            send_data_pos = 0;
+            int ret = LMS_SendStream(&tx_stream, &cdma_data[send_data_pos], send_data_size / 2, nullptr, 1000);
+            send_data_pos += send_data_size;
+            if (send_data_pos >= in_cdma_data_size)
+            {
+                send_data_pos = 0;
+            }
         }
         //if (ret != send_data_size/2)
         //{
@@ -177,8 +183,6 @@ int main(int argc, char** argv)
         if (chrono::high_resolution_clock::now() - t2 > chrono::seconds(1))
         {
             t2 = chrono::high_resolution_clock::now();
-            lms_stream_status_t status;
-            LMS_GetStreamStatus(&tx_stream, &status);  //Get stream status
             cout << "TX data rate: " << status.linkRate / 1e6 << " MB/s\n"; //link data rate
             cout << "TX rate: " << status.linkRate / 1e6 << " MB/s\n"; //link data rate (both channels))
             cout << "TX 0 FIFO: " << 100 * status.fifoFilledCount / status.fifoSize << "%" << endl; //percentage of TX 0 fifo filled
