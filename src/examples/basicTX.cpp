@@ -124,6 +124,11 @@ int main(int argc, char** argv)
     if (LMS_SetNormalizedGain(device, LMS_CH_TX, 0, tx_power) != 0)
         error();
 
+    unsigned int gaindB; //gain in dB
+    if (LMS_GetGaindB(device, LMS_CH_TX, 0, &gaindB) != 0)
+        error();
+    cout << "TX Gain: " << gaindB << " dB" << endl;
+
     //calibrate Tx, continue on failure
     LMS_Calibrate(device, LMS_CH_TX, 0, sample_rate, 0);
     
