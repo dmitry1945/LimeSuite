@@ -45,6 +45,7 @@ int main(int argc, char** argv)
     }
     int64_t eee = filesize(argv[2]);
     std::cout << "frequency = " << frequency << ", filename = " << argv[2] << ", TX power = " << tx_power << std::endl;
+    std::cout << "If now access to device: sudo chmod o+w /dev/bus/usb/002/*" << std::endl;
 
     float* cdma_data = NULL;
     int64_t in_cdma_data_size = 0;
@@ -112,6 +113,12 @@ int main(int argc, char** argv)
         error();
 
     //Set center frequency
+    float_type actual_freq = 0;
+    if (LMS_GetLOFrequency(device, LMS_CH_TX, 0, &actual_freq) == 0)
+    {
+        cout << "Actual Center frequency: " << actual_freq << " Hz" << endl;
+    }
+
     if (LMS_SetLOFrequency(device,LMS_CH_TX, 0, frequency)!=0)
         error();
     cout << "Center frequency: " << frequency/1e6 << " MHz" << endl;
