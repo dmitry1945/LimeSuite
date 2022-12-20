@@ -143,7 +143,7 @@ int main(int argc, char** argv)
     
     lms_stream_t tx_stream;                 //stream structure
     tx_stream.channel = 0;                  //channel number
-    tx_stream.fifoSize = 256*1024;          //fifo size in samples
+    tx_stream.fifoSize = 65536*64;          //fifo size in samples
     tx_stream.throughputVsLatency = 0.5;    //0 min latency, 1 max throughput
     tx_stream.dataFmt = lms_stream_t::LMS_FMT_F32; //floating point samples
     tx_stream.isTx = true;                  //TX channel
