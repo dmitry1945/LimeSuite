@@ -32,26 +32,42 @@ int error()
 int main(int argc, char** argv)
 {
     //double num_double = std::atof(str);
-    std::cout << "Frequency in Hz, filename, TX power 0..1 gain" << std::endl;
+    std::cout << "Frequency in Hz, Sample rate Hz, filename, TX power 0..1 gain, output multiplier 0..1" << std::endl;
+    std::cout << "For example: ./basicTX 2259995000 8388608 /home/dmitry/work/dcdma/data/dcdma_data_003.dat 0.4 1" << std::endl;
     const double frequency = std::atof(argv[1]);  //center frequency to 500 MHz
-    const double sample_rate = 2 * 4194304;    //sample rate to 8.192 MHz
+    const double sample_rate = std::atof(argv[2]); // 8388608;    //sample rate to 8.192 MHz
     const double tone_freq = 1e6; //tone frequency
     const double f_ratio = 0.125;
 
-    double tx_power = 0.7;
-    if (argc > 3)
+    if (argc < 5)
     {
-        tx_power = std::atof(argv[3]);
+        return -1;
     }
-    int64_t eee = filesize(argv[2]);
-    std::cout << "frequency = " << frequency << ", filename = " << argv[2] << ", TX power = " << tx_power << std::endl;
+    double tx_power = 0.7;
+    if (argc > 4)
+    {
+        tx_power = std::atof(argv[4]);
+    }
+    double multiplier = 1.0;
+    if (argc > 5)
+    {
+        multiplier = std::atof(argv[5]);
+    }
+    int64_t eee = filesize(argv[3]);
+
+    std::cout << "frequency = " << frequency 
+        << ", Sample rate = "<< sample_rate 
+        << ", filename = " << argv[3] 
+        << ", TX power = " << tx_power 
+        << ", multiplier = " << multiplier << std::endl;
+
     std::cout << "If now access to device: sudo chmod o+w /dev/bus/usb/002/*" << std::endl;
 
     float* cdma_data = NULL;
     int64_t in_cdma_data_size = 0;
     int64_t in_cdma_data_pos = 0;
 
-    FILE* data_file = fopen(argv[2], "rb");
+    FILE* data_file = fopen(argv[3], "rb");
 
     if (data_file == NULL) {
         fprintf(stderr, "File not exist: %s\n", argv[4]);
