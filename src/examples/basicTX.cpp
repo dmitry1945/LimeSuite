@@ -86,7 +86,10 @@ int main(int argc, char** argv)
         }
     } while (read_count > 0);
     fclose(data_file);
-
+    for (int64_t i = 0; i < in_cdma_data_size; i++)
+    {
+        cdma_data[i] = multiplier * cdma_data[i];
+    }
     //return 0;
     //Find devices
     int n;
